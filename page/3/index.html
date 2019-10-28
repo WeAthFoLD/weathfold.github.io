@@ -92,14 +92,6 @@
                 </a>
               </li>
             
-              <li>
-                <a href="/Resume">
-                  
-                  Resume
-                  
-                </a>
-              </li>
-            
           </ul>
         </div>
       </div>
@@ -112,6 +104,51 @@
 <div class="container">
   <div class="row">
     <div class="col-lg-10 col-md-10 col-md-offset-1">
+      
+        <div class="post-item-wrapper">
+  <a href="/2016/09/29/unity-singleton/" class="post-title">
+      Unity动画，外部跟随，prefab的使用
+  </a>
+  <div class="post-excerpt">
+    <!-- Post Date and Categories -->
+    <div class="date-and-category">
+      <div class="date">2016-09-29</div>
+      <div class="categories">
+        
+          
+
+<a href="/categories/Gamedev/">Gamedev</a>
+
+        
+      </div>
+    </div>
+    <!-- Post Excerpt -->
+    <div class="excerpt typo"><p>最近在做的项目里很经常的用到动画系统。其中遇到了一个比较特别的需求：在一个动画播放的过程中，让一个对象去跟随外部的对象。由此引发了一些对Unity动画系统的一些有趣的思考。</p>
+<h2 id="初步尝试"><a href="#初步尝试" class="headerlink" title="初步尝试"></a>初步尝试</h2><p>我们在制作一个2D的动作游戏，其中需要实现玩家角色的摔投技。摔投技需要让玩家摔投的怪物跟随着一个特定的路径（大致是玩家手的移动轨迹）运动，最后被砸到玩家身后的地上。</p>
+<p>首先，这个轨迹肯定需要可视化编辑，正好玩家的动作部分的播放也是用的Unity的Mechanim动画系统，所以就考虑把轨迹部分编入动画系统实现。</p>
+<p>这个轨迹是相对于玩家而言的，因此我在玩家下新建一个指示跟踪位置的节点（称为跟踪节点），并且在玩家的动画里操作该节点的位置。接下来想要让怪物跟随这个指示节点。这可以通过写一个小的跟随脚本，在脚本里公开一个follow对象，并在follow对象不为空的时候重设当前节点的位置实现。</p>
+<pre><code>| Player (Animator 1)
+ |- Follow Node
+
+| Monster (Animator 2)
+ - Component FollowObject
+    - GameObject follow
+</code></pre><p>接下来，只需要在动画里动态的改变follow对象，让它先设置为玩家的跟踪节点，在无需跟踪时设置为空，我们想要的跟踪效果就实现了。</p>
+<p>……</p>
+<p>真的是这样么？</p></div>
+    <!-- Post Tags -->
+    <div class="tags">
+      
+        
+
+<a class="tag" href="/tags/unity/">unity</a>
+
+
+      
+    </div>
+  </div>
+</div>
+
       
         <div class="post-item-wrapper">
   <a href="/2016/09/19/hello-world/" class="post-title">

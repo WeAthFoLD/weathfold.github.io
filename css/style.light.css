@@ -721,6 +721,10 @@ img {
   text-align: center;
   image-orientation: from-image;
 }
+.my-drawings {
+  display: inline-block;
+  width: 32%;
+}
 footer {
   padding: 2.1875rem 0;
   border-top: 1px solid #e1e1e1;
