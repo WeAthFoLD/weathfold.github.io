@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
   <!-- Html Head Tag-->
-  <head>
+  <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
+  <meta name="description" content>
   <meta name="author" content="WeAthFolD">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="视差预览 &amp; 摇动的草"/>
-  <meta property="og:description" content="" />
-  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
-  <meta property="og:type" content="article" />
-  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  <meta property="og:title" content="视差预览 &amp; 摇动的草">
+  <meta property="og:description" content>
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="http://weathfold.github.ioundefined">
   
     <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
   
@@ -112,7 +112,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2017-10-15</span>
-            <span class="time">10:26:17</span>
+            <span class="time">12:00:43</span>
           </span>
           
           <!--  Categories  -->
@@ -136,7 +136,7 @@
         <div class="post-content">
           <p>很久没写博客了，之前一直想整理一些东西出来，不过把 repo clone 下来以后才发现自己的主题被设置为了 submodule 所以没有 push 上去……于是只有回到上海拿到旧电脑，把文件恢复了才能继续写东西。T^T</p>
 <p>今天记录一下最近在做 Cocoon 的时候写的比较有意思的两个场景/渲染相关的小技巧。</p>
-<p><img src="/images/warping-grass.gif" alt=""></p>
+<p><img src="/images/warping-grass.gif" alt></p>
 <a id="more"></a>
 <h1 id="1-视差效果和编辑器内的视差预览"><a href="#1-视差效果和编辑器内的视差预览" class="headerlink" title="1. 视差效果和编辑器内的视差预览"></a>1. 视差效果和编辑器内的视差预览</h1><p>视差是在横版卷轴游戏里常用的一种绘制技巧。通过把背景层（或前景层）的东西在不同的速率滚动，以造成“场景有深度”的感觉。</p>
 <p>在 Unity 里，实现视差滚动的方法通常有两种：</p>
@@ -214,7 +214,7 @@
 <span class="token punctuation">}</span>
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>就这么简单。看看效果吧：</p>
-<p><img src="/images/parallax_preview.gif" alt=""></p>
+<p><img src="/images/parallax_preview.gif" alt></p>
 <h1 id="2-摇动的草（Vertex-Animation-amp-Instancing）"><a href="#2-摇动的草（Vertex-Animation-amp-Instancing）" class="headerlink" title="2. 摇动的草（Vertex Animation &amp; Instancing）"></a>2. 摇动的草（Vertex Animation &amp; Instancing）</h1><p>摇动的草应该是一开始做 Vertex Animation 的时候最先会想到的一个题目。在做工厂这个场景的时候我们的美术也是早早的告诉我【想要摇动的草】，不过过了好几个月才回头来填这个坑呢。接下来从思路和工程方面分别讨论这个问题。</p>
 <h2 id="2-1-实现思路"><a href="#2-1-实现思路" class="headerlink" title="2.1. 实现思路"></a>2.1. 实现思路</h2><p>让我们来思考草晃动的时候会是什么效果。草的根部应该是固定在地面上，而越接近顶端的部分，受到的拉力越小，因此晃动的幅度也越大。因此，我们可以让顶点的横向位移 <code>dx</code> 作为草的顶点高度 <code>h</code> 的一个函数。草的晃动应该是来回周期性的，因此我们使用 <code>sin</code> 函数来实现对应：</p>
 <p><code>dx = A * f(h) * sin(B * t)</code></p>
@@ -222,11 +222,11 @@
 <ul>
 <li>线性： <code>f(h) = h</code></li>
 </ul>
-<p><img src="/images/warping-grass-linear.gif" alt=""></p>
+<p><img src="/images/warping-grass-linear.gif" alt></p>
 <ul>
 <li>平方： <code>f(h) = h * h</code></li>
 </ul>
-<p><img src="/images/warping-grass-squared.gif" alt=""></p>
+<p><img src="/images/warping-grass-squared.gif" alt></p>
 <p>可以看到，平方对应的函数在尖端位移会更多一些，看起来也更符合草的动态，所以我最终选择了平方函数。</p>
 <h2 id="2-2-工程问题"><a href="#2-2-工程问题" class="headerlink" title="2.2. 工程问题"></a>2.2. 工程问题</h2><h3 id="2-2-1-草的高度在哪里？"><a href="#2-2-1-草的高度在哪里？" class="headerlink" title="2.2.1. 草的高度在哪里？"></a>2.2.1. 草的高度在哪里？</h3><p>如果我们的贴图整块就是草，那么贴图uv的范围就是<code>(0, 0)</code> -&gt; <code>(1, 1)</code>，那么我们就可以很轻松的拿v分量来当顶点高度。然而，贴图很有可能只有部分被渲染或位于某张 atlas 中。因此，我们需要通过别的方法设置草的高度，比如说为 Mesh 设置一个新的 <code>UV1</code> 通道。这样的话，<code>SpriteRenderer</code> 显然是没法用了，只能自己搞 <code>MeshRenderer</code>。</p>
 <h3 id="2-2-2-网格不能是-Quad"><a href="#2-2-2-网格不能是-Quad" class="headerlink" title="2.2.2. 网格不能是 Quad"></a>2.2.2. 网格不能是 Quad</h3><p>假如我们要使用非线性的高度对应函数，显然我们不能只用四个顶点来渲染这个草。因为不管我们如何位移顶点，最终还是一个四边形。我们需要把四边形在垂直方向细分成多个小块。细分的越多，对应效果越好。我这里只细分了 5 块就能得到很好的效果。</p>
@@ -234,7 +234,7 @@
 <p><code>dx = A * f(h) * sin(B * t + C)</code></p>
 <p>这个 C 可以以 <code>MaterialPropertyBlock</code> 的形式设置每个示例的属性，再通过 <code>MeshRenderer.SetPropertyBlock</code> 传递给 <code>MeshRenderer</code>。</p>
 <h3 id="2-2-4-必要的优化：Instancing"><a href="#2-2-4-必要的优化：Instancing" class="headerlink" title="2.2.4. 必要的优化：Instancing"></a>2.2.4. 必要的优化：Instancing</h3><p>做完上一步，我们已经可以得到一个很不错的效果了：</p>
-<p><img src="/images/warping-grass.gif" alt=""></p>
+<p><img src="/images/warping-grass.gif" alt></p>
 <p>然而，如果这时候你打开 Stats 面板，会发现 DrawCall 暴增，每个草实例都成为了一个单独的 DrawCall。这是因为我们为每个实例设置了不同的属性。但通过 Unity 5.0+ 新增的 <code>GPU Instancing</code> 支持，可以使用图形 API 的 instancing 将这些 Drawcall 合并。</p>
 <p>我们需要在 shader 中，用特殊的宏指明需要 instancing 的属性：</p>
 <pre class="line-numbers language-HLSL"><code class="language-HLSL">UNITY_INSTANCING_CBUFFER_START(Props)

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
   <!-- Html Head Tag-->
-  <head>
+  <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
+  <meta name="description" content>
   <meta name="author" content="WeAthFolD">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="记一次unity中的编译性能调优"/>
-  <meta property="og:description" content="" />
-  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
-  <meta property="og:type" content="article" />
-  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  <meta property="og:title" content="记一次unity中的编译性能调优">
+  <meta property="og:description" content>
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="http://weathfold.github.ioundefined">
   
     <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
   
@@ -112,7 +112,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2018-02-14</span>
-            <span class="time">10:26:17</span>
+            <span class="time">12:00:43</span>
           </span>
           
           <!--  Categories  -->
@@ -182,7 +182,7 @@ public class MainCamera : MonoBehaviour {
 <p>在将项目改为使用asmdef后，我尝试对最下游的脚本进行修改，并检测编译时间，然而并没有我想象中的一下子变快，而是几乎不变。我一下子有些沮丧：这意味着我一开始的假设就错了，编译速度的瓶颈根本不是编译时间！</p>
 <h1 id="2-Assembly-Reloading，内存泄漏，和神秘的Rewired-Input-Manager"><a href="#2-Assembly-Reloading，内存泄漏，和神秘的Rewired-Input-Manager" class="headerlink" title="2. Assembly Reloading，内存泄漏，和神秘的Rewired Input Manager"></a>2. Assembly Reloading，内存泄漏，和神秘的Rewired Input Manager</h1><p>有句话说得好，遇事不决找 profiler！</p>
 <p>把 Unity Profiler 打开，并在编译时检测性能消耗：</p>
-<p><img src="/images/unitycompile/profiler.PNG" alt=""></p>
+<p><img src="/images/unitycompile/profiler.PNG" alt></p>
 <p>可以看到，占用最多时间的是这个SerializeBackups函数。经过大量的搜索之后，找到了<a href="https://medium.com/@lynxelia/unity-memory-management-how-to-manage-memory-and-reduce-the-time-it-takes-to-enter-play-mode-fd07b43c1daa" target="_blank" rel="noopener">这篇资料</a>。当编译完代码之后，Unity需要进行一次Assembly Reload，将新编译的所有类替换入CLR。由于替换过程中类中的数据是无法保留的，因此需要将所有暂存的对象都序列化一次，在替换后再反序列化回去——就是这个过程占用了大量的时间。如果当前内存中加载的东西太多，就会引来这个问题。</p>
 <p>于是我进一步通过Profiler的Memory Profiling查看内存中的对象，惊异的发现了一件事：在内存中有大概0.5GB的东西被RenderTexture占据了！我在做延迟渲染的时候会分配一些RenderTexture，而这说明我做的不对，造成了内存泄漏。</p>
 <p>在解决了这个问题之后，编译速度的问题解决了吗？</p>
@@ -190,7 +190,7 @@ public class MainCamera : MonoBehaviour {
 <p>在不同的场景来回切换，检测编译时间的时候，我发现在主场景（存放玩家、主摄像机、UI的那个场景）活跃时，性能问题是最严重的。这是有一定道理的——毕竟只有这个场景在加载后，会分配RenderTexture。难道是RenderTexture的序列化效率太低了，四五个就会导致严重的卡顿？</p>
 <p>在最后排查之后，问题完全不在RenderTexture上，而在一个我完全没有意料到的组件上—— Rewired Input Manager。</p>
 <p>Rewired 是一个手柄输入系统插件。它的 Input Manager 大概长这样：</p>
-<p><img src="/images/unitycompile/rewired.PNG" alt=""></p>
+<p><img src="/images/unitycompile/rewired.PNG" alt></p>
 <p>这么多数据，在序列化的时候会带来问题并不奇怪。但是我万万没想到会拖慢差不多5秒钟的时间，于是我给作者发了一个ticket，作者是这么回复的：</p>
 <blockquote>
 <p>As it says, there is no solution because this is purely an issue with<br>Unity’s serialization system over which I have no control. Your only option<br>is to remove controller definitions.</p>

@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
   <!-- Html Head Tag-->
-  <head>
+  <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
+  <meta name="description" content>
   <meta name="author" content="WeAthFolD">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="扩展Unity编辑器（一）：自定义窗口"/>
-  <meta property="og:description" content="" />
-  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
-  <meta property="og:type" content="article" />
-  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  <meta property="og:title" content="扩展Unity编辑器（一）：自定义窗口">
+  <meta property="og:description" content>
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="http://weathfold.github.ioundefined">
   
     <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
   
@@ -112,7 +112,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2016-12-16</span>
-            <span class="time">10:26:17</span>
+            <span class="time">12:00:43</span>
           </span>
           
           <!--  Categories  -->
@@ -172,8 +172,8 @@ public class PHPWindow : EditorWindow {
 }
 <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>和 <code>Editor</code> 不同，<code>EditorWindow</code> 处理GUI事件的回调方法是 <code>OnGUI</code>。</p>
-<p><img src="/images/ext-editor-1.jpg" alt=""></p>
-<p><img src="/images/ext-editor-2.jpg" alt=""></p>
+<p><img src="/images/ext-editor-1.jpg" alt></p>
+<p><img src="/images/ext-editor-2.jpg" alt></p>
 <p>这个窗口可以和任何其他的编辑器子窗口一样进行拖动、缩放和停靠。Neat isn’t it?</p>
 <p><a href="https://docs.unity3d.com/ScriptReference/EditorWindow.html" target="_blank" rel="noopener">Unity Doc地址</a></p>
 <h1 id="2-GUI绘制和处理"><a href="#2-GUI绘制和处理" class="headerlink" title="2. GUI绘制和处理"></a>2. GUI绘制和处理</h1><p>无论是Editor还是EditorWindow，我们最终都需要在回调方法中进行GUI绘制和事件处理。Unity提供了一套统一的 Immediate-mode（立即模式）接口来进行编辑器GUI的处理，接下来我们对它进行简单的介绍。</p>

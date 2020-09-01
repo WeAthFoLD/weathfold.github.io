@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
   <!-- Html Head Tag-->
-  <head>
+  <head><meta name="generator" content="Hexo 3.9.0">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="">
+  <meta name="description" content>
   <meta name="author" content="WeAthFolD">
   <!-- Open Graph Data -->
-  <meta property="og:title" content="GGJ2018 Postmortem"/>
-  <meta property="og:description" content="" />
-  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field"/>
-  <meta property="og:type" content="article" />
-  <meta property="og:image" content="http://weathfold.github.ioundefined"/>
+  <meta property="og:title" content="GGJ2018 Postmortem">
+  <meta property="og:description" content>
+  <meta property="og:site_name" content="WeAthFolD&#39;s Inverted Field">
+  <meta property="og:type" content="article">
+  <meta property="og:image" content="http://weathfold.github.ioundefined">
   
     <link rel="alternate" href="/atom.xml" title="WeAthFolD&#39;s Inverted Field" type="application/atom+xml">
   
@@ -112,7 +112,7 @@
           <!-- Date -->
           <span class="date-time info">On
             <span class="date">2018-01-30</span>
-            <span class="time">10:26:17</span>
+            <span class="time">12:00:43</span>
           </span>
           
           <!--  Categories  -->
@@ -137,13 +137,13 @@
           <p>几天前，在上海的Unity站参加了今年的Global Game Jam。趁着余热未消，做一个简单的总结。</p>
 <a id="more"></a>
 <h1 id="Team和作品"><a href="#Team和作品" class="headerlink" title="Team和作品"></a>Team和作品</h1><p>我们这次的队伍组合是两个程序（我、子豪）和一个美术（猫），没有策划hhh。在游戏设计上，我们基本上是一起出力。于是最后的Staff表是这么写的：</p>
-<p><img src="/images/doomprot/staff.PNG" alt=""></p>
+<p><img src="/images/doomprot/staff.PNG" alt></p>
 <p>这次的主题是 Transmission（传输）。这个词的意义其实相当广阔，可以理解为物质的传输，信息的传输，病毒的传播……再推广一下，甚至可以认为所有的交互过程都是 Transmission。</p>
 <p>一开始的脑暴：</p>
-<p><img src="/images/doomprot/brainstorm.PNG" alt=""></p>
+<p><img src="/images/doomprot/brainstorm.PNG" alt></p>
 <p>后来我想到一个idea，可以让一个东西在不同的角色之间传输，玩家的控制权也在角色之间不断转移，当你侵入你的敌人之后，你实际上就变成了它。大家都觉得这个想法很有意思，于是在这个基础上发掘出了一个基于 Action Platformer 的玩法。最终目的是想要做出一个比较混乱和动态的战局，我需要在战斗中不断侵占他人的身体，并利用其特性来应对战局。</p>
 <p>最后的作品看起来是这样的（极简像素风）：</p>
-<p><img src="/images/doomprot/sc.PNG" alt=""></p>
+<p><img src="/images/doomprot/sc.PNG" alt></p>
 <p>在遭受丧尸病毒爆发的太空飞船中，计算机系统的AI触发执行了’末日协议’（DOOMSDAY Protocol），它会不择一切手段地让飞船回到地球，获得’安全’。你就扮演这个AI，通过在不同的机器、人类、怪物的意识之间穿梭，玩家将在飞船中杀出一条血路，发出求救信号。</p>
 <p>最后的结果还算令人满意，至少比去年的GGJ结果好不少。我们得以把整个流程打通，并实现了4个可操作的怪物，还有完整的开场动画和完结动画。在最后展示的时候台下一阵阵的豹笑，以及热烈的掌声也让我们很受鼓舞（还听到有人在小声说完成度好高，不要太开心ww）。当然，在和其他的GGJ优秀作品比较之后，也明白我们还有非常非常多改进的空间。所以，还是好好想想在这个过程中有哪些可以做的更好的吧。</p>
 <p>试玩可以戳这里：<a href="https://indienova.com/g/doomsday-protocol" target="_blank" rel="noopener">末日协议 | indienova</a></p>
@@ -155,7 +155,7 @@
 <h1 id="感想"><a href="#感想" class="headerlink" title="感想"></a>感想</h1><h2 id="1-关于工作量预估"><a href="#1-关于工作量预估" class="headerlink" title="1 关于工作量预估"></a>1 关于工作量预估</h2><p>在细化设计阶段，我们其实想的有些多了。一开始我们想让每个角色作为玩家的时候有主攻击和副攻击，总共有7个角色，还有一个你切换角色之后会看到它心中所想的设定……这些我们最后都没有搞出来，因为时间完全不够。最后美术倒是画出来了7个角色的完整动画，但是只做完了4个，因为调试游戏中的攻击行为、动画表现和AI的工作量确实是不小。</p>
 <p>其实这次比以前还是不小的进步。一开始做游戏的时候想法总是天马行空，但实际去做的时候却发现阻力无穷大，根本做不出来。慢慢的，想法就会和实现方式开始靠拢，并且尽量只抽丝剥茧保留想法的核心，把细节推到后面去考量。关于如何在开发过程中调整方向和工作量，是一个需要持续去实践和体会的问题。</p>
 <h2 id="2-积累在平时"><a href="#2-积累在平时" class="headerlink" title="2 积累在平时"></a>2 积累在平时</h2><p>我们这次使用了大量的第三方库/自己之前造的轮子：</p>
-<p><img src="/images/doomprot/wheels.PNG" alt=""></p>
+<p><img src="/images/doomprot/wheels.PNG" alt></p>
 <p>由于之前自己一直在写Cocoon，正好也是一个genre非常类似的横版平台游戏，其中的大量工具可以直接用上（MetaSprite动画导入，TileMap关卡编辑，BTScript行为树脚本），可以说是事半功倍。</p>
 <p>这也说明了平时多进行各种类型游戏制作的积累，可以大大的提高开发效率。如果GGJ是一场考试，那平时做游戏的过程就是考试的准备。</p>
 <h2 id="3-审美-gt-gt-工作量"><a href="#3-审美-gt-gt-工作量" class="headerlink" title="3 审美 &gt;&gt; 工作量"></a>3 审美 &gt;&gt; 工作量</h2><p>在这种时间极端受限的情况下，人自然会绞尽脑汁来降低工作量。比如说使用big pixel。但是我们很意外的发现，即便是这样的超低像素，最后玩起来也很愉快。做特性也是如此，很多时候真正好的东西不来自于工作量的堆积，而是来自于设计者好的审美和大量的减法。</p>
